@@ -1,0 +1,2599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Gran Concurso de Jasón y los Argonautas</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-dark: #030b1a;
+  --bg-mid: #071428;
+  --blue-deep: #0a1f3d;
+  --blue-mid: #0d2d5e;
+  --blue-light: #1a4a8a;
+  --gold: #f0c040;
+  --gold-dark: #c8960c;
+  --gold-light: #ffe87a;
+  --gold-glow: rgba(240,192,64,0.35);
+  --silver: #c0c8d8;
+  --white: #f0f4ff;
+  --correct: #22c55e;
+  --wrong: #ef4444;
+  --option-a: #1e3a6e;
+  --option-hover: #1a4a8a;
+  --shadow: rgba(0,0,0,0.6);
+  --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font);
+  background: var(--bg-dark);
+  color: var(--white);
+  overflow-x: hidden;
+}
+
+/* ===== STARFIELD BACKGROUND ===== */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(10,40,90,0.6) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(15,50,100,0.5) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(5,20,50,0.8) 0%, transparent 50%),
+    var(--bg-dark);
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Starfield dots */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 35% 10%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 55% 40%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 90% 60%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 10% 70%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 60% 80%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 25% 90%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 85% 85%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 45% 55%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 70% 35%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 5% 45%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 95% 30%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 40% 75%, rgba(255,255,255,0.3), transparent),
+    radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 30% 60%, rgba(240,192,64,0.5), transparent),
+    radial-gradient(1.5px 1.5px at 65% 20%, rgba(240,192,64,0.4), transparent),
+    radial-gradient(1.5px 1.5px at 48% 88%, rgba(240,192,64,0.3), transparent);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ===== SCREENS ===== */
+.screen {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+}
+.screen.active { display: flex; }
+
+/* ===== SHARED PANEL ===== */
+.panel {
+  background: linear-gradient(165deg, rgba(13,45,94,0.95) 0%, rgba(7,20,40,0.98) 100%);
+  border: 1px solid var(--gold-dark);
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 0 60px rgba(240,192,64,0.15), 0 0 120px rgba(0,10,30,0.8), inset 0 1px 0 rgba(240,192,64,0.3);
+  max-width: 820px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+}
+
+/* ===== LOGO / TITLE ===== */
+.logo-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.logo-emoji {
+  font-size: 56px;
+  display: block;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 0 20px var(--gold-glow));
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+h1.main-title {
+  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+.subtitle {
+  font-size: clamp(0.85rem, 2vw, 1.05rem);
+  color: var(--silver);
+  font-style: italic;
+  margin-bottom: 0;
+}
+
+/* ===== GOLD DIVIDER ===== */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold-dark), var(--gold), var(--gold-dark), transparent);
+  margin: 24px 0;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block;
+  color: var(--gold-light);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.form-group input {
+  width: 100%;
+  background: rgba(10,30,65,0.8);
+  border: 1px solid var(--blue-light);
+  border-radius: 10px;
+  padding: 14px 18px;
+  color: var(--white);
+  font-size: 1rem;
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.form-group input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(240,192,64,0.2);
+}
+
+/* ===== RULES BOX ===== */
+.rules-box {
+  background: rgba(10,30,65,0.5);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.rules-box h3 {
+  color: var(--gold-light);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.rules-list {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+.rules-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--silver);
+  line-height: 1.4;
+}
+.rules-list li .icon {
+  flex-shrink: 0;
+  font-size: 1rem;
+  margin-top: 1px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 36px;
+  border: none;
+  border-radius: 50px;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.1);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.btn:hover::after { opacity: 1; }
+.btn:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold), var(--gold-light));
+  color: var(--bg-dark);
+  box-shadow: 0 4px 25px rgba(240,192,64,0.5), 0 2px 8px rgba(0,0,0,0.5);
+  width: 100%;
+  font-size: 1.1rem;
+  padding: 18px 40px;
+}
+.btn-primary:hover {
+  box-shadow: 0 6px 35px rgba(240,192,64,0.7), 0 2px 10px rgba(0,0,0,0.5);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1.5px solid var(--gold-dark);
+  color: var(--gold);
+  padding: 10px 24px;
+  font-size: 0.85rem;
+}
+.btn-secondary:hover {
+  background: rgba(240,192,64,0.1);
+}
+
+.btn-sm {
+  padding: 8px 18px;
+  font-size: 0.8rem;
+}
+
+/* ===== QUIZ SCREEN ===== */
+#quiz-screen {
+  padding: 16px;
+}
+.quiz-wrapper {
+  max-width: 820px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.player-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--silver);
+}
+.player-avatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+  border: 2px solid var(--gold-dark);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+}
+.timer-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10,30,65,0.7);
+  border: 1px solid var(--gold-dark);
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+}
+
+/* Progress */
+.progress-section {
+  background: rgba(13,45,94,0.8);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 14px;
+  padding: 14px 20px;
+}
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--silver);
+  margin-bottom: 8px;
+}
+.block-label {
+  color: var(--gold-light);
+  font-weight: 600;
+}
+.progress-bar-track {
+  height: 8px;
+  background: rgba(10,30,65,0.8);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold), var(--gold-light));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px var(--gold-glow);
+}
+.question-dots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.q-dot {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: rgba(10,30,65,0.8);
+  border: 1px solid rgba(240,192,64,0.2);
+  font-size: 0.6rem;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,0.3);
+  transition: all 0.3s;
+}
+.q-dot.current {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--bg-dark);
+  box-shadow: 0 0 8px var(--gold-glow);
+  font-weight: 700;
+}
+.q-dot.correct { background: var(--correct); border-color: var(--correct); color: white; }
+.q-dot.wrong { background: var(--wrong); border-color: var(--wrong); color: white; }
+
+/* Question card */
+.question-card {
+  background: linear-gradient(165deg, rgba(13,45,94,0.95), rgba(7,20,40,0.98));
+  border: 1px solid var(--gold-dark);
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 0 40px rgba(240,192,64,0.1), 0 0 80px rgba(0,10,30,0.8);
+  position: relative;
+  overflow: hidden;
+}
+.question-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.question-number-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(240,192,64,0.15);
+  border: 1px solid rgba(240,192,64,0.3);
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 16px;
+}
+.difficulty-badge {
+  font-size: 0.65rem;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.diff-basic { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.diff-medium { background: rgba(234,179,8,0.2); color: #fbbf24; border: 1px solid rgba(234,179,8,0.3); }
+.diff-advanced { background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+.question-text {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--white);
+  margin-bottom: 24px;
+}
+
+/* Options */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 600px) {
+  .options-grid { grid-template-columns: 1fr; }
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(10,30,65,0.9), rgba(5,15,40,0.9));
+  border: 1.5px solid rgba(26,74,138,0.6);
+  border-radius: 14px;
+  padding: 16px 20px;
+  color: var(--white);
+  font-family: var(--font);
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+  line-height: 1.4;
+}
+.option-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(240,192,64,0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(240,192,64,0.2);
+}
+.option-btn:hover:not(:disabled)::before { opacity: 1; }
+
+.option-letter {
+  flex-shrink: 0;
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+  border: 1.5px solid rgba(240,192,64,0.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--gold-light);
+  transition: all 0.25s;
+}
+.option-btn:hover:not(:disabled) .option-letter {
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  border-color: var(--gold);
+  color: var(--bg-dark);
+}
+
+/* Answer states */
+.option-btn.selected { animation: pulse-select 0.3s ease; }
+.option-btn.correct-answer {
+  background: linear-gradient(135deg, rgba(34,197,94,0.25), rgba(21,128,61,0.2));
+  border-color: var(--correct);
+  animation: glow-correct 0.5s ease;
+}
+.option-btn.correct-answer .option-letter {
+  background: var(--correct);
+  border-color: var(--correct);
+  color: white;
+}
+.option-btn.wrong-answer {
+  background: linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.2));
+  border-color: var(--wrong);
+}
+.option-btn.wrong-answer .option-letter {
+  background: var(--wrong);
+  border-color: var(--wrong);
+  color: white;
+}
+.option-btn.eliminated {
+  opacity: 0.3;
+  pointer-events: none;
+  transform: scale(0.98);
+}
+.option-btn:disabled { cursor: default; }
+
+@keyframes pulse-select {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+@keyframes glow-correct {
+  0% { box-shadow: none; }
+  50% { box-shadow: 0 0 30px rgba(34,197,94,0.6); }
+  100% { box-shadow: 0 0 10px rgba(34,197,94,0.3); }
+}
+
+/* Feedback panel */
+.feedback-panel {
+  display: none;
+  background: rgba(10,30,65,0.7);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-top: 20px;
+  animation: slide-in 0.3s ease;
+}
+.feedback-panel.show { display: block; }
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.feedback-correct .feedback-header { color: var(--correct); }
+.feedback-wrong .feedback-header { color: var(--wrong); }
+.feedback-text {
+  font-size: 0.88rem;
+  color: var(--silver);
+  line-height: 1.6;
+}
+.feedback-text strong { color: var(--gold-light); }
+
+/* Bottom bar */
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Lifelines */
+.lifelines {
+  display: flex;
+  gap: 10px;
+}
+.lifeline-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(13,45,94,0.8);
+  border: 1.5px solid rgba(240,192,64,0.4);
+  border-radius: 12px;
+  padding: 10px 16px;
+  color: var(--gold-light);
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.lifeline-btn:hover:not(:disabled) {
+  background: rgba(240,192,64,0.15);
+  border-color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(240,192,64,0.2);
+}
+.lifeline-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+.lifeline-icon { font-size: 1.3rem; }
+.lifeline-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; }
+
+/* Score display */
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10,30,65,0.7);
+  border: 1px solid rgba(240,192,64,0.3);
+  border-radius: 50px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  color: var(--gold-light);
+  font-weight: 700;
+}
+
+/* Hint modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fade-in 0.2s ease;
+}
+.modal-overlay.show { display: flex; }
+@keyframes fade-in {
+  from { opacity: 0; } to { opacity: 1; }
+}
+.modal-box {
+  background: linear-gradient(165deg, rgba(13,45,94,0.98), rgba(7,20,40,0.99));
+  border: 1px solid var(--gold-dark);
+  border-radius: 20px;
+  padding: 36px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 0 60px rgba(240,192,64,0.2);
+  animation: pop-in 0.3s ease;
+  position: relative;
+}
+.modal-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  border-radius: 20px 20px 0 0;
+}
+@keyframes pop-in {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.modal-icon { font-size: 3rem; margin-bottom: 16px; }
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.modal-text {
+  font-size: 0.95rem;
+  color: var(--silver);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+.modal-text em { color: var(--gold-light); font-style: normal; font-weight: 600; }
+
+/* Block transition */
+.block-transition {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  padding: 40px;
+  animation: fade-in 0.4s ease;
+}
+.block-transition.show { display: flex; }
+.block-title-big {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.block-desc {
+  font-size: 1rem;
+  color: var(--silver);
+  max-width: 500px;
+  line-height: 1.6;
+}
+.argo-ship {
+  font-size: 4rem;
+  animation: sail 2s ease-in-out infinite;
+}
+@keyframes sail {
+  0%,100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+
+/* ===== RESULTS SCREEN ===== */
+#results-screen { padding: 20px; }
+.results-panel {
+  max-width: 820px;
+  width: 100%;
+  background: linear-gradient(165deg, rgba(13,45,94,0.95), rgba(7,20,40,0.98));
+  border: 1px solid var(--gold-dark);
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: 0 0 60px rgba(240,192,64,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.results-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+}
+
+.score-hero {
+  text-align: center;
+  padding: 30px 0;
+  position: relative;
+}
+.score-circle {
+  width: 150px; height: 150px;
+  border-radius: 50%;
+  background: conic-gradient(var(--gold) calc(var(--pct) * 1%), rgba(10,30,65,0.8) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  position: relative;
+  box-shadow: 0 0 40px var(--gold-glow);
+}
+.score-circle::after {
+  content: '';
+  position: absolute;
+  inset: 10px;
+  background: var(--bg-mid);
+  border-radius: 50%;
+}
+.score-number {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+.score-big {
+  display: block;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  line-height: 1;
+}
+.score-label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--silver);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.result-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 24px 0;
+}
+@media (max-width: 500px) { .result-meta { grid-template-columns: 1fr 1fr; } }
+
+.meta-card {
+  background: rgba(10,30,65,0.6);
+  border: 1px solid rgba(240,192,64,0.15);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+.meta-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  display: block;
+}
+.meta-desc {
+  font-size: 0.72rem;
+  color: var(--silver);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  display: block;
+}
+
+.blocks-results {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+}
+.block-result-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10,30,65,0.5);
+  border: 1px solid rgba(240,192,64,0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+.block-result-name {
+  flex: 1;
+  font-size: 0.82rem;
+  color: var(--silver);
+  font-weight: 600;
+}
+.block-result-score {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  min-width: 50px;
+  text-align: right;
+}
+.block-mini-bar {
+  flex: 2;
+  height: 6px;
+  background: rgba(10,30,65,0.8);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.block-mini-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+  transition: width 0.8s ease;
+}
+
+.comment-box {
+  background: rgba(240,192,64,0.08);
+  border: 1px solid rgba(240,192,64,0.25);
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin: 20px 0;
+  font-size: 0.9rem;
+  color: var(--silver);
+  line-height: 1.6;
+}
+.comment-box strong { color: var(--gold-light); }
+
+.results-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+/* ===== REVIEW SCREEN ===== */
+#review-screen {
+  padding: 20px;
+  align-items: flex-start;
+}
+.review-wrapper {
+  max-width: 820px;
+  width: 100%;
+}
+.review-header {
+  background: linear-gradient(165deg, rgba(13,45,94,0.95), rgba(7,20,40,0.98));
+  border: 1px solid var(--gold-dark);
+  border-radius: 20px;
+  padding: 24px 32px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.review-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+
+.review-item {
+  background: linear-gradient(165deg, rgba(13,45,94,0.9), rgba(7,20,40,0.95));
+  border: 1px solid rgba(240,192,64,0.15);
+  border-radius: 16px;
+  padding: 22px 26px;
+  margin-bottom: 14px;
+  position: relative;
+}
+.review-item.was-correct { border-left: 4px solid var(--correct); }
+.review-item.was-wrong { border-left: 4px solid var(--wrong); }
+.review-q-num {
+  font-size: 0.72rem;
+  color: var(--gold-light);
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.review-q-text {
+  font-size: 0.95rem;
+  color: var(--white);
+  font-weight: 600;
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.review-answer-row {
+  display: flex;
+  gap: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+}
+.review-answer-row span:first-child {
+  min-width: 110px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+.review-your-answer { color: var(--wrong); }
+.review-your-answer.ok { color: var(--correct); }
+.review-correct-answer { color: var(--correct); }
+.review-explanation {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: rgba(10,30,65,0.5);
+  border-radius: 8px;
+  font-size: 0.83rem;
+  color: var(--silver);
+  line-height: 1.6;
+  border-left: 3px solid rgba(240,192,64,0.3);
+}
+
+/* ===== TEACHER SCREEN ===== */
+#teacher-login-screen, #teacher-panel-screen {
+  padding: 20px;
+}
+
+.teacher-panel {
+  max-width: 1100px;
+  width: 100%;
+  background: linear-gradient(165deg, rgba(13,45,94,0.95), rgba(7,20,40,0.98));
+  border: 1px solid var(--gold-dark);
+  border-radius: 20px;
+  padding: 36px;
+  box-shadow: 0 0 60px rgba(240,192,64,0.15);
+  position: relative;
+  overflow: hidden;
+}
+.teacher-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: rgba(10,30,65,0.6);
+  border: 1px solid rgba(240,192,64,0.15);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+.stat-card .stat-val {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  display: block;
+}
+.stat-card .stat-label {
+  font-size: 0.72rem;
+  color: var(--silver);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+}
+
+.section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(240,192,64,0.3), transparent);
+}
+
+/* Table */
+.data-table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(240,192,64,0.15);
+  margin-bottom: 24px;
+}
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+table.data-table th {
+  background: rgba(10,30,65,0.8);
+  color: var(--gold-light);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 12px 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+table.data-table td {
+  padding: 11px 14px;
+  color: var(--silver);
+  border-top: 1px solid rgba(240,192,64,0.07);
+  vertical-align: middle;
+}
+table.data-table tr:hover td { background: rgba(240,192,64,0.04); }
+table.data-table .pct-cell { font-weight: 700; }
+table.data-table .pct-high { color: var(--correct); }
+table.data-table .pct-mid { color: var(--gold); }
+table.data-table .pct-low { color: var(--wrong); }
+
+.block-scores-mini {
+  display: flex;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+.bsm {
+  font-size: 0.72rem;
+  background: rgba(10,30,65,0.7);
+  border-radius: 4px;
+  padding: 2px 5px;
+  color: var(--silver);
+  white-space: nowrap;
+}
+
+/* Question editor */
+.question-editor-toggle {
+  margin-bottom: 14px;
+}
+.editor-area {
+  display: none;
+  background: rgba(10,30,65,0.5);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 14px;
+}
+.editor-area.show { display: block; }
+.editor-area textarea {
+  width: 100%;
+  min-height: 300px;
+  background: rgba(5,15,40,0.8);
+  border: 1px solid rgba(240,192,64,0.2);
+  border-radius: 8px;
+  color: var(--white);
+  font-family: 'Consolas', monospace;
+  font-size: 0.8rem;
+  padding: 12px;
+  resize: vertical;
+  outline: none;
+}
+
+/* Hardest questions list */
+.hardest-list {
+  display: grid;
+  gap: 8px;
+}
+.hardest-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10,30,65,0.5);
+  border: 1px solid rgba(240,192,64,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.hardest-rank {
+  min-width: 28px; height: 28px;
+  background: rgba(240,192,64,0.15);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+.hardest-text { flex: 1; font-size: 0.82rem; color: var(--silver); line-height: 1.4; }
+.hardest-pct {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--wrong);
+}
+
+/* Nav tabs for teacher */
+.teacher-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(240,192,64,0.15);
+  padding-bottom: 12px;
+}
+.tab-btn {
+  padding: 8px 18px;
+  border-radius: 50px;
+  border: 1.5px solid rgba(240,192,64,0.2);
+  background: transparent;
+  color: var(--silver);
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn:hover, .tab-btn.active {
+  background: rgba(240,192,64,0.15);
+  border-color: var(--gold);
+  color: var(--gold-light);
+}
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .panel { padding: 24px; }
+  .question-card { padding: 20px; }
+  .bottom-bar { flex-direction: column-reverse; }
+  .lifelines { justify-content: center; }
+}
+
+/* ===== UTILITY ===== */
+.text-gold { color: var(--gold-light); }
+.text-center { text-align: center; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.fw-700 { font-weight: 700; }
+.text-sm { font-size: 0.85rem; }
+.text-xs { font-size: 0.75rem; }
+
+.confetti-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  width: 10px;
+  height: 16px;
+  opacity: 0;
+  animation: confetti-fall linear forwards;
+}
+@keyframes confetti-fall {
+  0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SCREEN 1: START / WELCOME
+     ============================================================ -->
+<div id="start-screen" class="screen active">
+  <div class="panel">
+    <div class="logo-title">
+      <span class="logo-emoji">⚓</span>
+      <h1 class="main-title">EL GRAN CONCURSO DE<br>JASÓN Y LOS ARGONAUTAS</h1>
+      <p class="subtitle">¿Serías capaz de superar las pruebas del Vellocino de Oro?</p>
+    </div>
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label>Tu nombre y apellidos</label>
+      <input type="text" id="student-name" placeholder="Escribe tu nombre completo…" autocomplete="name">
+    </div>
+
+    <div class="rules-box">
+      <h3>⚔️ Cómo funciona el concurso</h3>
+      <ul class="rules-list">
+        <li><span class="icon">📜</span><span><strong>25 preguntas</strong> ordenadas en cinco bloques, siguiendo el orden narrativo de la historia de Jasón y los Argonautas.</span></li>
+        <li><span class="icon">🏆</span><span>Cuatro opciones por pregunta. Solo una es correcta. Tras cada respuesta recibirás una explicación.</span></li>
+        <li><span class="icon">⏱️</span><span>Duración estimada: <strong>45 minutos</strong>. Verás el tiempo transcurrido en todo momento.</span></li>
+        <li><span class="icon">🔮</span><span><strong>Comodín 50:50</strong>: Elimina dos respuestas incorrectas y deja solo dos opciones.</span></li>
+        <li><span class="icon">💡</span><span><strong>Comodín Pista</strong>: Muestra una pista contextual que te ayuda a razonar sin revelar la respuesta.</span></li>
+        <li><span class="icon">📊</span><span>Al finalizar verás tus resultados por bloques y podrás revisar cada pregunta detalladamente.</span></li>
+        <li><span class="icon">🔒</span><span>Tus resultados quedan guardados automáticamente. La profesora podrá consultarlos desde su panel privado.</span></li>
+      </ul>
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()">
+      ⚓ COMENZAR LA AVENTURA ⚓
+    </button>
+
+    <div class="divider"></div>
+    <div class="text-center">
+      <button class="btn btn-secondary btn-sm" onclick="goToTeacherLogin()">🔐 Panel de la profesora</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BLOCK TRANSITION OVERLAY
+     ============================================================ -->
+<div id="block-transition" class="block-transition">
+  <div class="argo-ship">🚢</div>
+  <div class="block-title-big" id="bt-title"></div>
+  <div class="block-desc" id="bt-desc"></div>
+  <button class="btn btn-primary" style="max-width:280px" onclick="hideBlockTransition()">⚔️ ¡ADELANTE!</button>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: QUIZ
+     ============================================================ -->
+<div id="quiz-screen" class="screen">
+  <div class="quiz-wrapper">
+
+    <!-- TOP BAR -->
+    <div class="top-bar">
+      <div class="player-info">
+        <div class="player-avatar">👤</div>
+        <span id="player-display-name" style="font-weight:600; color: var(--gold-light);"></span>
+      </div>
+      <div class="timer-display">
+        ⏱️ <span id="timer-display">00:00</span>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="progress-section">
+      <div class="progress-labels">
+        <span class="block-label" id="block-label-display">Bloque 1</span>
+        <span>Pregunta <strong id="q-num-display">1</strong> de 25</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+      <div class="question-dots" id="question-dots"></div>
+    </div>
+
+    <!-- QUESTION CARD -->
+    <div class="question-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:16px;">
+        <div class="question-number-badge">
+          <span id="q-badge-num">Pregunta 1</span>
+        </div>
+        <span class="difficulty-badge" id="diff-badge"></span>
+      </div>
+
+      <p class="question-text" id="question-text"></p>
+
+      <div class="options-grid" id="options-grid"></div>
+
+      <div class="feedback-panel" id="feedback-panel">
+        <div class="feedback-header" id="feedback-header"></div>
+        <p class="feedback-text" id="feedback-text"></p>
+      </div>
+    </div>
+
+    <!-- BOTTOM BAR -->
+    <div class="bottom-bar">
+      <div class="lifelines">
+        <button class="lifeline-btn" id="ll-5050" onclick="useLifeline5050()">
+          <span class="lifeline-icon">⚖️</span>
+          <span class="lifeline-label">50:50</span>
+        </button>
+        <button class="lifeline-btn" id="ll-hint" onclick="useLifelineHint()">
+          <span class="lifeline-icon">💡</span>
+          <span class="lifeline-label">Pista</span>
+        </button>
+      </div>
+
+      <div class="score-display">
+        ⭐ <span id="score-display">0</span> / <span id="score-possible">25</span>
+      </div>
+
+      <button class="btn btn-secondary" id="next-btn" onclick="nextQuestion()" style="display:none;">
+        Siguiente →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- HINT MODAL -->
+<div class="modal-overlay" id="hint-modal">
+  <div class="modal-box">
+    <div class="modal-icon">💡</div>
+    <div class="modal-title">Pista</div>
+    <p class="modal-text" id="hint-text"></p>
+    <button class="btn btn-primary" style="max-width:200px" onclick="closeHintModal()">Entendido</button>
+  </div>
+</div>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- ============================================================
+     SCREEN 3: RESULTS
+     ============================================================ -->
+<div id="results-screen" class="screen">
+  <div class="results-panel">
+    <div class="logo-title">
+      <span class="logo-emoji">🏆</span>
+      <h1 class="main-title">RESULTADOS FINALES</h1>
+      <p class="subtitle" id="results-player-name"></p>
+    </div>
+    <div class="divider"></div>
+
+    <div class="score-hero">
+      <div class="score-circle" id="score-circle">
+        <div class="score-number">
+          <span class="score-big" id="result-pct">0%</span>
+          <span class="score-label">ACIERTOS</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-meta" id="result-meta"></div>
+
+    <div class="divider"></div>
+    <div class="section-title">Resultados por bloque</div>
+    <div class="blocks-results" id="blocks-results"></div>
+
+    <div class="divider"></div>
+    <div class="comment-box" id="result-comment"></div>
+
+    <div class="results-actions">
+      <button class="btn btn-secondary" onclick="showReview()">📋 Revisar preguntas</button>
+      <button class="btn btn-primary" style="max-width:280px" onclick="restartQuiz()">🔄 Volver al inicio</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 4: REVIEW
+     ============================================================ -->
+<div id="review-screen" class="screen">
+  <div class="review-wrapper">
+    <div class="review-header">
+      <span class="review-title">📋 Revisión de preguntas</span>
+      <button class="btn btn-secondary btn-sm" onclick="showResults()">← Volver a resultados</button>
+    </div>
+    <div id="review-content"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 5: TEACHER LOGIN
+     ============================================================ -->
+<div id="teacher-login-screen" class="screen">
+  <div class="panel" style="max-width:420px;">
+    <div class="logo-title">
+      <span class="logo-emoji">🔐</span>
+      <h1 class="main-title" style="font-size:1.6rem;">PANEL DOCENTE</h1>
+      <p class="subtitle">Acceso restringido a la profesora</p>
+    </div>
+    <div class="divider"></div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="teacher-pwd" placeholder="Introduce la contraseña…" onkeydown="if(event.key==='Enter') teacherLogin()">
+    </div>
+    <p class="text-sm" style="color:rgba(255,255,255,0.4); margin-bottom:16px; font-size:0.78rem;">
+      Contraseña por defecto: <code>argonautas2024</code>
+    </p>
+    <button class="btn btn-primary" onclick="teacherLogin()">🔓 ACCEDER</button>
+    <div class="divider"></div>
+    <div class="text-center">
+      <button class="btn btn-secondary btn-sm" onclick="showScreen('start-screen')">← Volver al concurso</button>
+    </div>
+    <p id="login-error" style="color:var(--wrong); text-align:center; margin-top:12px; font-size:0.85rem; display:none;">
+      ⚠️ Contraseña incorrecta
+    </p>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 6: TEACHER PANEL
+     ============================================================ -->
+<div id="teacher-panel-screen" class="screen">
+  <div class="teacher-panel">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:24px;">
+      <div>
+        <h1 class="main-title" style="font-size:1.5rem; margin-bottom:4px;">Panel de la Profesora</h1>
+        <p class="subtitle">Jasón y los Argonautas — Resultados del grupo</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn btn-secondary btn-sm" onclick="exportCSV()">📥 Exportar CSV</button>
+        <button class="btn btn-secondary btn-sm" onclick="clearAllResults()" style="border-color:var(--wrong); color:var(--wrong);">🗑️ Reiniciar datos</button>
+        <button class="btn btn-secondary btn-sm" onclick="teacherLogout()">🔒 Salir</button>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="teacher-stats-grid"></div>
+
+    <div class="teacher-tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-students')">👥 Alumnos</button>
+      <button class="tab-btn" onclick="switchTab('tab-blocks')">📊 Por bloques</button>
+      <button class="tab-btn" onclick="switchTab('tab-questions')">❓ Por pregunta</button>
+      <button class="tab-btn" onclick="switchTab('tab-editor')">✏️ Editor de preguntas</button>
+    </div>
+
+    <!-- Tab: Students -->
+    <div class="tab-content active" id="tab-students">
+      <div class="section-title">Resultados individuales</div>
+      <div class="data-table-wrapper">
+        <table class="data-table" id="students-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Alumno/a</th>
+              <th>Fecha</th>
+              <th>Tiempo</th>
+              <th>Aciertos</th>
+              <th>%</th>
+              <th>Comodines</th>
+              <th>Bloques</th>
+            </tr>
+          </thead>
+          <tbody id="students-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Blocks -->
+    <div class="tab-content" id="tab-blocks">
+      <div class="section-title">Rendimiento por bloque (% medio de aciertos)</div>
+      <div id="blocks-analysis"></div>
+    </div>
+
+    <!-- Tab: Questions -->
+    <div class="tab-content" id="tab-questions">
+      <div class="section-title">Preguntas más difíciles (menor % de aciertos)</div>
+      <div class="hardest-list" id="hardest-questions"></div>
+      <div class="divider"></div>
+      <div class="section-title">Todas las preguntas</div>
+      <div class="data-table-wrapper">
+        <table class="data-table" id="all-questions-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Pregunta</th>
+              <th>Bloque</th>
+              <th>Dificultad</th>
+              <th>Aciertos</th>
+              <th>Fallos</th>
+              <th>% Acierto</th>
+            </tr>
+          </thead>
+          <tbody id="all-q-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: Editor -->
+    <div class="tab-content" id="tab-editor">
+      <div class="section-title">Editor de preguntas</div>
+      <p class="text-sm" style="color:var(--silver); margin-bottom:16px; line-height:1.6;">
+        Puedes modificar el banco de preguntas en formato JSON. Guarda los cambios para que se apliquen a todas las partidas futuras. Los resultados existentes no se modifican.
+      </p>
+      <button class="btn btn-secondary btn-sm question-editor-toggle" onclick="toggleQuestionEditor()">
+        📝 Ver/Editar banco de preguntas (JSON)
+      </button>
+      <div class="editor-area" id="question-editor-area">
+        <textarea id="questions-json-editor"></textarea>
+        <div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+          <button class="btn btn-primary" style="max-width:200px; padding:12px 24px;" onclick="saveQuestionsFromEditor()">💾 Guardar cambios</button>
+          <button class="btn btn-secondary btn-sm" onclick="resetQuestionsToDefault()">↩️ Restaurar originales</button>
+        </div>
+        <p id="editor-msg" style="margin-top:10px; font-size:0.82rem;"></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+'use strict';
+
+/* ============================================================
+   QUESTION BANK
+   ============================================================ */
+const DEFAULT_QUESTIONS = [
+  /* ───── BLOQUE 1: Orígenes de Jasón y el reto de Pelias ───── */
+  {
+    id: 1, block: 1, difficulty: 'basic',
+    text: '¿Quiénes eran los padres de Jasón?',
+    options: ['Esón y Alcímede', 'Pelias y Tiró', 'Quirón y Deméter', 'Éolo y Calírroe'],
+    correct: 0,
+    hint: 'Recuerda que el padre de Jasón era el legítimo rey de Yolcos antes de que Pelias se apoderase del trono.',
+    explanation: '<strong>Esón</strong> era el rey legítimo de Yolcos y <strong>Alcímede</strong> era su esposa. Pelias, hermanastro de Esón, usurpó el trono privando a su familia del poder. Precisamente por eso, la educación de Jasón se realizó en secreto y en el exilio.'
+  },
+  {
+    id: 2, block: 1, difficulty: 'basic',
+    text: '¿Por qué Alcímede entregó al recién nacido Jasón a Quirón y fingió que el niño había muerto?',
+    options: [
+      'Para protegerle de Pelias, que quería eliminar a los hijos de Esón',
+      'Porque Esón la había abandonado y no podía criar al niño sola',
+      'Para cumplir un oráculo que ordenaba que Jasón fuera educado por los centauros',
+      'Porque Quirón era el padre biológico de Jasón'
+    ],
+    correct: 0,
+    hint: 'Piensa en qué peligro representaba Pelias para cualquier heredero de Esón.',
+    explanation: '<strong>Pelias</strong> había usurpado el trono y temía a cualquier descendiente de Esón que pudiera reclamar el poder. Para salvar la vida de su hijo, Alcímede lo entregó en secreto al centauro Quirón y fingió que el niño había nacido muerto, eliminando así el motivo por el que Pelias querría eliminarlo.'
+  },
+  {
+    id: 3, block: 1, difficulty: 'basic',
+    text: '¿Dónde vivía Quirón, el educador de Jasón?',
+    options: ['En las cuevas del monte Pelión', 'En el monte Olimpo', 'En el reino de Yolcos', 'En la isla de Lemnos'],
+    correct: 0,
+    hint: 'Era un lugar montañoso, apartado de los reinos de los hombres, donde el centauro podía enseñar en paz.',
+    explanation: '<strong>Quirón</strong> era el más sabio de los centauros y vivía en las cuevas del <strong>monte Pelión</strong>, en Tesalia. Allí educó a Jasón durante su infancia y juventud, instruyéndole en la caza, la medicina, la música y el arte de la guerra, como había hecho con otros héroes como Aquiles.'
+  },
+  {
+    id: 4, block: 1, difficulty: 'medium',
+    text: '¿Qué advertencia contenía la profecía que recibió Pelias del oráculo de Delfos?',
+    options: [
+      'Que un hombre que llegara con una sola sandalia sería su perdición',
+      'Que el Vellocino de Oro traería la desgracia a Yolcos',
+      'Que los dioses le retirarían su favor por haber usurpado el trono',
+      'Que su propio hijo le arrebataría el poder'
+    ],
+    correct: 0,
+    hint: 'La profecía se relaciona directamente con un detalle físico del aspecto de quien llegaría a Yolcos.',
+    explanation: 'El oráculo advirtió a Pelias que se guardara del hombre que llegara <strong>con una sola sandalia</strong>. Esta advertencia explica por qué, cuando Jasón llegó a Yolcos descalzo de un pie, Pelias lo reconoció de inmediato como la amenaza anunciada y decidió enviarle en una misión peligrosa en lugar de matarle directamente.'
+  },
+  {
+    id: 5, block: 1, difficulty: 'medium',
+    text: '¿Qué ocurrió cuando Jasón ayudó a una anciana a cruzar el río Anauro y quién era realmente aquella mujer?',
+    options: [
+      'Perdió una sandalia en el barro del río; la anciana era la diosa Hera disfrazada',
+      'La anciana le reveló el secreto de su origen; era la sacerdotisa de Delfos',
+      'La corriente se lo llevó y perdió una sandalia; la anciana era Atenea',
+      'Se torció el tobillo y llegó cojeando a Yolcos; la anciana era una ninfa del río'
+    ],
+    correct: 0,
+    hint: 'Recuerda qué diosa tenía especial interés en apoyar a Jasón y en que su expedición se llevara a cabo.',
+    explanation: 'Al cruzar el río Anauro cargando con la anciana, Jasón perdió una sandalia en el barro. La anciana era en realidad <strong>Hera</strong>, la reina de los dioses, disfrazada para poner a prueba la generosidad del héroe. Desde ese momento, Hera se convirtió en su protectora y acompañó a los Argonautas durante toda la expedición.'
+  },
+  {
+    id: 6, block: 1, difficulty: 'medium',
+    text: '¿En qué circunstancias se encontraron Jasón y Pelias, y qué reacción tuvo el rey al verle?',
+    options: [
+      'Jasón llegó a los juegos fúnebres de Poseidón en Yolcos; Pelias palideció al ver que solo calzaba una sandalia',
+      'Jasón se presentó en el palacio reclamando el trono; Pelias lo arrestó y lo encadenó',
+      'Jasón llegó como mensajero de Quirón; Pelias fingió no reconocerle',
+      'Jasón apareció en el ágora de Yolcos; Pelias lo desafió a un duelo'
+    ],
+    correct: 0,
+    hint: 'El encuentro tuvo lugar con motivo de una celebración pública. Fíjate en la reacción física de Pelias.',
+    explanation: 'Jasón llegó a Yolcos durante los juegos en honor de Poseidón. Cuando Pelias lo vio con una sola sandalia, <strong>palideció</strong> al reconocer al hombre anunciado por el oráculo. En lugar de enfrentarse directamente a él, Pelias optó por una trampa: le encomendó la misión de traer el Vellocino de Oro, esperando que nunca regresara.'
+  },
+  {
+    id: 7, block: 1, difficulty: 'advanced',
+    text: '¿Qué relación directa existe entre la profecía recibida por Pelias, el episodio del río y la misión del Vellocino? ¿Por qué Pelias no mató a Jasón directamente?',
+    options: [
+      'La profecía advertía del hombre con una sandalia; Pelias lo identificó por ello y lo envió a buscar el Vellocino esperando que muriese en el intento, evitando así el sacrilegio de matar a un familiar en presencia de los dioses',
+      'Pelias no podía matar a Jasón porque este era hijo de un dios y era inmortal',
+      'La ley griega impedía matar a un huésped; por eso lo envió lejos',
+      'Pelias desconocía que Jasón era el heredero legítimo y lo envió por codicia, queriendo el Vellocino para sí'
+    ],
+    correct: 0,
+    hint: 'Piensa en qué contexto estaban cuando se encontraron y qué consecuencias tendría para Pelias matar a Jasón públicamente ante los dioses.',
+    explanation: 'La profecía señalaba al <strong>hombre con una sola sandalia</strong>. Pelias reconoció a Jasón en los juegos sagrados: matarle allí habría sido un sacrilegio ante los dioses. La solución fue enviarle a recuperar el Vellocino de Oro, una misión que todos consideraban imposible y mortal, deshacerse de él sin manchar sus manos de sangre ante los dioses y los hombres.'
+  },
+  /* ───── BLOQUE 2: La expedición del Argo y primeras aventuras ───── */
+  {
+    id: 8, block: 2, difficulty: 'basic',
+    text: '¿Qué era el Vellocino de Oro y qué relación tenía con Frixo?',
+    options: [
+      'Era la piel de un carnero alado de color dorado sobre el que Frixo escapó de su madrastra; al llegar a la Cólquida lo sacrificó a Zeus y colgó el vellón en un bosque sagrado',
+      'Era la armadura de oro de Ares que Frixo robó para huir de Grecia',
+      'Era un tesoro escondido por los dioses en la Cólquida que Frixo había encontrado durante sus viajes',
+      'Era la corona dorada del rey de la Cólquida que Frixo había traído como tributo'
+    ],
+    correct: 0,
+    hint: 'Recuerda cuál fue el medio de transporte sobrenatural que salvó a Frixo y a su hermana Hele.',
+    explanation: '<strong>Frixo</strong> y su hermana Hele huyeron de su madrastra montados en un carnero alado de lana dorada. Durante el viaje, Hele cayó al mar (dando nombre al Helesponto). Frixo llegó a la <strong>Cólquida</strong>, donde sacrificó el carnero a Zeus y colgó el Vellocino en el bosque sagrado de Ares, custodiado por un dragón que nunca dormía.'
+  },
+  {
+    id: 9, block: 2, difficulty: 'basic',
+    text: '¿Por qué el barco de los héroes recibió el nombre de Argo?',
+    options: [
+      'Porque fue construido por el carpintero Argos, con ayuda de Atenea',
+      'Porque navegaba con la velocidad del viento, que en griego se llama argos',
+      'Por el héroe Argos, uno de los Argonautas, que era el más veloz de todos',
+      'Porque fue construido en la ciudad de Argos, en el Peloponeso'
+    ],
+    correct: 0,
+    hint: 'El nombre del barco viene del nombre propio de su constructor, no de una ciudad ni de una cualidad.',
+    explanation: 'El barco fue construido por el carpintero <strong>Argos</strong>, con la asistencia de la diosa <strong>Atenea</strong>, que instaló en la proa un trozo de madera del roble de Dodona con capacidad de profetizar. En honor a su constructor, la nave recibió el nombre de <strong>Argo</strong>, y sus tripulantes pasaron a llamarse Argonautas ("marineros del Argo").'
+  },
+  {
+    id: 10, block: 2, difficulty: 'medium',
+    text: '¿Por qué las mujeres de Lemnos habían descuidado el culto a Afrodita y qué castigo recibieron por ello?',
+    options: [
+      'Las lemnias habían abandonado el culto a Afrodita; la diosa las castigó con un olor corporal repugnante que hizo que sus maridos las rechazaran y buscaran a otras mujeres',
+      'Las lemnias habían adorado a Hera en lugar de a Afrodita; la diosa las castigó haciéndolas estériles',
+      'Las lemnias habían quemado el templo de Afrodita; la diosa las castigó enviando una plaga que mató a todos sus hijos',
+      'Las lemnias habían robado las ofrendas del templo de Afrodita; la diosa las castigó enviando un ejército de mujeres guerreras para atacarlas'
+    ],
+    correct: 0,
+    hint: 'El castigo de Afrodita está relacionado con el rechazo que sufrieron las lemnias por parte de sus propios maridos.',
+    explanation: 'Las mujeres de Lemnos habían descuidado el culto a Afrodita, que se vengó infligiéndoles un <strong>hedor insoportable</strong>. Sus maridos, incapaces de soportar el olor, las abandonaron y tomaron como concubinas a mujeres tracias. Humilladas y furiosas, las lemnias mataron a todos los hombres de la isla, quedándose solas hasta la llegada de los Argonautas.'
+  },
+  {
+    id: 11, block: 2, difficulty: 'medium',
+    text: '¿Quién era Hipsípila y qué relación tuvo con Jasón durante la estancia en Lemnos?',
+    options: [
+      'Era la reina de Lemnos, hija del rey Toante; se convirtió en amante de Jasón y de su unión nacieron dos hijos',
+      'Era la sacerdotisa de Afrodita en Lemnos que organizó la emboscada contra los Argonautas',
+      'Era la única mujer de Lemnos que se había negado a matar a su marido y que refugió a los Argonautas en su casa',
+      'Era la capitana de las guerreras de Lemnos que desafió a Jasón a un duelo'
+    ],
+    correct: 0,
+    hint: 'Su padre era el único hombre de Lemnos que había escapado de la matanza. Hipsípila ocupaba el cargo más importante de la isla.',
+    explanation: '<strong>Hipsípila</strong> era la reina de Lemnos e hija del rey Toante, al que ella misma había salvado en secreto durante la matanza. Los Argonautas fueron bien recibidos por las lemnias, que necesitaban hombres para repoblar la isla. Jasón convivió con Hipsípila durante dos años, con quien tuvo dos hijos, hasta que Heracles impacientó a los héroes para que reemprendieran el viaje.'
+  },
+  {
+    id: 12, block: 2, difficulty: 'medium',
+    text: '¿Quién era Fineo y por qué Zeus le había castigado?',
+    options: [
+      'Era un anciano rey profeta de Tracia; Zeus lo castigó por revelar demasiados secretos de los dioses, enviándole las Harpías para que le arrebataran la comida',
+      'Era un sacerdote de Apolo en Tracia; Zeus lo castigó por haber traicionado a los dioses revelando la ubicación del Vellocino',
+      'Era un rey de Bósforo aliado de Eetes; Zeus lo castigó enviándole una plaga por haber cegado a sus propios hijos',
+      'Era un adivino ciego de Colquide; Zeus lo castigó quitándole la vista por haber ayudado a un enemigo de los dioses'
+    ],
+    correct: 0,
+    hint: 'El castigo de Zeus estaba relacionado con el don de la profecía que Fineo poseía y con su mal uso de ese don.',
+    explanation: '<strong>Fineo</strong> era un anciano rey-profeta de Tracia, dotado del don de la adivinación. Zeus lo castigó porque había revelado a los hombres secretos que los dioses no querían que se conocieran. El castigo fue doble: la ceguera y las <strong>Harpías</strong>, criaturas aladas que le arrebataban o ensuciaban toda la comida, condenándole a una muerte lenta por inanición.'
+  },
+  {
+    id: 13, block: 2, difficulty: 'medium',
+    text: '¿Qué hicieron Calais y Zetes para liberar a Fineo de las Harpías y qué recompensa les ofreció el anciano?',
+    options: [
+      'Calais y Zetes, hijos alados de Bóreas, persiguieron a las Harpías y las alejaron para siempre; Fineo a cambio reveló a los Argonautas cómo atravesar las Simplégades y cómo llegar a la Cólquida',
+      'Calais y Zetes capturaron a las Harpías y las encerraron en una cueva; Fineo les regaló un barco más veloz para sustituir al Argo',
+      'Calais y Zetes llevaron a Fineo hasta el monte Olimpo para que los dioses le perdonaran; Fineo a cambio les ofreció su reino',
+      'Calais y Zetes mataron a las Harpías con sus espadas; Fineo les reveló dónde estaba escondido el Vellocino de Oro'
+    ],
+    correct: 0,
+    hint: 'Piensa en qué tenían de especial Calais y Zetes que les permitía perseguir a seres voladores, y en qué necesitaban los Argonautas para continuar su viaje.',
+    explanation: '<strong>Calais</strong> y <strong>Zetes</strong> eran hijos del dios del viento norte <strong>Bóreas</strong> y, por tanto, tenían alas. Persiguieron a las Harpías hasta que estas juraron no volver jamás a atormentar a Fineo. Agradecido, el anciano ofreció a los Argonautas la información más valiosa posible: cómo sortear las Simplégades y la ruta completa hasta la Cólquida.'
+  },
+  {
+    id: 14, block: 2, difficulty: 'advanced',
+    text: '¿Qué eran las Simplégades y qué estrategia explicó Fineo para atravesarlas sin perecer?',
+    options: [
+      'Eran dos enormes rocas flotantes que chocaban entre sí aplastando todo lo que intentaba pasar; Fineo les aconsejó soltar primero una paloma: si la paloma pasaba, los Argonautas debían remar a toda velocidad aprovechando el momento en que las rocas se separasen tras el choque',
+      'Eran dos remolinos gigantes en el Bósforo; Fineo les aconsejó esperar a la noche cuando el mar estaba en calma',
+      'Eran dos penínsulas que se cerraban como unas tenazas; Fineo les aconsejó atar el barco y esperar a que el viento soplara desde el norte',
+      'Eran dos monstruos marinos que custodiaban el estrecho del Bósforo; Fineo les aconsejó ofrecer un sacrificio a Poseidón antes de intentar el paso'
+    ],
+    correct: 0,
+    hint: 'La estrategia implicaba usar un animal como prueba antes de que el barco intentara el paso, calculando el tiempo exacto entre el choque y la siguiente apertura.',
+    explanation: 'Las <strong>Simplégades</strong> (o Rocas Chocantes) eran dos enormes peñascos que flotaban en el estrecho y se golpeaban entre sí destruyendo todo lo que intentaba pasar entre ellas. Fineo explicó que soltaran una <strong>paloma</strong>: si la paloma pasaba, tendrían tiempo suficiente para remar a máxima velocidad durante el instante en que las rocas se separasen. La paloma solo perdió las plumas de la cola, y los Argonautas cruzaron perdiendo únicamente los adornos de la popa.'
+  },
+  /* ───── BLOQUE 3: Las pruebas de Jasón y la ayuda de Medea ───── */
+  {
+    id: 15, block: 3, difficulty: 'basic',
+    text: '¿Cuáles eran las tres pruebas que el rey Eetes impuso a Jasón para entregarle el Vellocino de Oro?',
+    options: [
+      'Uncir los toros de bronce que escupían fuego, arar un campo con ellos y sembrar los dientes del dragón; después vencer a los guerreros que surgieran de la tierra',
+      'Matar al dragón que custodiaba el Vellocino, navegar hasta la isla del Vellocino y vencer a Eetes en combate singular',
+      'Encontrar el Vellocino en el bosque, traerlo ante Eetes sin mirarlo y sacrificar un toro en honor de Ares',
+      'Cruzar el río de fuego, escalar la roca de Prometeo y robar el Vellocino durante la noche'
+    ],
+    correct: 0,
+    hint: 'Las pruebas estaban relacionadas con unos animales especiales, una labor agrícola y una batalla contra un ejército sobrenatural.',
+    explanation: 'Las tres pruebas eran: <strong>1.</strong> Uncir los <em>Khalkotauroi</em>, toros de bronce con pezuñas de acero y aliento de fuego. <strong>2.</strong> Arar un campo con ellos. <strong>3.</strong> Sembrar en ese campo los dientes del dragón de Ares, de los que nacería un ejército de guerreros armados (<em>espártos</em>) que Jasón debería también vencer.'
+  },
+  {
+    id: 16, block: 3, difficulty: 'medium',
+    text: '¿Quién era Medea y qué relaciones familiares y divinas la vinculaban con personajes del mito?',
+    options: [
+      'Era hija del rey Eetes de la Cólquida, nieta del dios Sol Helios, sacerdotisa de Hécate y prima de la hechicera Circe',
+      'Era hija de Ares y de una nereida, sacerdotisa de Ártemis y hermana de Apsirto',
+      'Era la hija de Poseidón criada en la Cólquida, discípula de Circe y devota de Afrodita',
+      'Era una princesa troyana exiliada en la Cólquida, adoptada por Eetes y convertida en sacerdotisa de Hécate'
+    ],
+    correct: 0,
+    hint: 'Su abuelo era una divinidad solar. Su tía era una famosa hechicera griega. Su diosa era una deidad ctónica vinculada a la magia.',
+    explanation: '<strong>Medea</strong> era hija del rey <strong>Eetes</strong> y nieta del dios sol <strong>Helios</strong>. Era sacerdotisa de <strong>Hécate</strong>, diosa de la magia, y por ello poseía poderes sobrenaturales. Era también prima de la hechicera <strong>Circe</strong>. Estas relaciones la convertían en una figura de enorme poder mágico, capaz de proporcionar a Jasón los medios para superar las pruebas imposibles de Eetes.'
+  },
+  {
+    id: 17, block: 3, difficulty: 'medium',
+    text: '¿Qué papel desempeñaron Hera y Afrodita en la decisión de Medea de ayudar a Jasón?',
+    options: [
+      'Hera, protectora de Jasón, convenció a Afrodita para que enviara a su hijo Eros a disparar una flecha a Medea y hacerla enamorarse locamente de Jasón',
+      'Hera se apareció a Medea en sueños y le ordenó ayudar a Jasón bajo amenaza de destruir la Cólquida',
+      'Afrodita transformó a Jasón en un ser irresistible y Hera le dio un talismán para que Medea confiara en él',
+      'Las dos diosas se le aparecieron juntas a Medea y le prometieron la inmortalidad si salvaba a Jasón'
+    ],
+    correct: 0,
+    hint: 'Recuerda cuál de las dos diosas era la protectora de Jasón y cuál tenía poder sobre el amor. La solución requirió la colaboración de ambas.',
+    explanation: '<strong>Hera</strong>, protectora de Jasón, fue a ver a <strong>Afrodita</strong> y le pidió que hiciera que Medea se enamorara del héroe. Afrodita envió a su hijo <strong>Eros</strong> (Cupido) para que disparara su flecha a Medea. El amor que sintió Medea por Jasón fue lo que la llevó a traicionar a su padre y a usar sus poderes mágicos para salvar la vida del héroe.'
+  },
+  {
+    id: 18, block: 3, difficulty: 'medium',
+    text: '¿Qué contenía el ungüento mágico que Medea preparó para Jasón y para qué debía usarlo?',
+    options: [
+      'Contenía un extracto de la flor de Prometeo, que nacía de la sangre del titán; frotado sobre el cuerpo y las armas protegía del fuego y daba fuerza sobrenatural durante un día',
+      'Contenía veneno de la hidra de Lerna mezclado con miel de las abejas sagradas de Hécate; hacía invisible a quien lo bebía',
+      'Contenía aceite de oliva consagrado a Atenea mezclado con polvo de estrella; hacía invulnerable al portador durante tres días',
+      'Contenía sangre del carnero del Vellocino de Oro; daba al guerrero la capacidad de hablar con los animales y controlarlos'
+    ],
+    correct: 0,
+    hint: 'La protección era específica para uno de los peligros de las pruebas: el fuego de los toros. La flor de la que provenía tenía un origen divino relacionado con el sufrimiento.',
+    explanation: 'El ungüento se elaboraba a partir de una flor especial que había brotado de la sangre derramada por <strong>Prometeo</strong>. Medea recogió la flor durante la noche e instruyó a Jasón para que se frotara el cuerpo y las armas con él antes del amanecer. El ungüento le protegería del <strong>fuego de los Khalkotauroi</strong> y le daría una fuerza extraordinaria durante toda la jornada.'
+  },
+  {
+    id: 19, block: 3, difficulty: 'advanced',
+    text: '¿Qué estrategia le enseñó Medea a Jasón para vencer al ejército de guerreros que nacía de los dientes del dragón sembrados?',
+    options: [
+      'Le dijo que lanzara una enorme roca en medio de los guerreros; al no saber de dónde provenía el ataque, se volverían unos contra otros hasta matarse entre ellos',
+      'Le explicó que debía gritar el nombre de Hécate; los guerreros se detendrían paralizados y podrían ser degollados uno a uno',
+      'Le aconsejó huir al río y atraer a los guerreros al agua, donde se disolverían al ser de barro',
+      'Le dijo que les ofreciera los dientes del dragón y los guerreros lo reconocerían como su señor y le obedecerían'
+    ],
+    correct: 0,
+    hint: 'La estrategia se basa en provocar una confusión interna entre los propios guerreros. No requería que Jasón los venciera en combate uno a uno.',
+    explanation: 'Medea explicó a Jasón que, una vez que los guerreros (<em>espártos</em>) comenzaran a brotar de la tierra, lanzara una <strong>enorme roca</strong> en medio de ellos. Al no ver de dónde provenía el golpe, los guerreros se culparían unos a otros y se atacarían entre sí en una batalla fratricida. Jasón solo tendría que rematar a los supervivientes. Esta estrategia le permitió vencer sin necesidad de enfrentarse al ejército completo.'
+  },
+  {
+    id: 20, block: 3, difficulty: 'advanced',
+    text: '¿Cómo consiguió Jasón apoderarse del Vellocino de Oro después de superar las tres pruebas y qué prometió a Medea?',
+    options: [
+      'Medea adormeció al dragón guardián con sus pociones mágicas mientras Jasón tomaba el Vellocino del árbol; le prometió casarse con ella y llevarla a Grecia como su esposa',
+      'Jasón mató al dragón con la espada que le había dado Atenea y arrancó el Vellocino; le prometió a Medea riquezas y un palacio en Yolcos',
+      'Medea transformó al dragón en piedra con un hechizo de Hécate y Jasón tomó el Vellocino; le prometió consagrar un templo a Hécate en su honor',
+      'Jasón distrajo al dragón con la música de Orfeo mientras Medea tomaba el Vellocino en secreto; le prometió liberar a su padre Eetes del poder de los dioses'
+    ],
+    correct: 0,
+    hint: 'El método para neutralizar al dragón no fue la violencia sino la magia. La promesa de Jasón era de carácter matrimonial y social.',
+    explanation: 'Medea usó sus conocimientos de sacerdotisa de Hécate para preparar una poción con la que <strong>adormeció al dragón</strong> que custodiaba el Vellocino sin descanso. Mientras el monstruo dormía, Jasón tomó el Vellocino del árbol en el que colgaba. A cambio de su ayuda, Jasón prometió a Medea <strong>casarse con ella</strong> y llevarla consigo a Grecia, donde la trataría como su esposa legítima. Medea sabía que, al traicionar a su padre, nunca podría volver sola a casa.'
+  },
+  /* ───── BLOQUE 4: El regreso, la venganza de Medea y la muerte de Pelias ───── */
+  {
+    id: 21, block: 4, difficulty: 'medium',
+    text: '¿Quién era Apsirto y qué papel tuvo en la huida de los Argonautas de la Cólquida?',
+    options: [
+      'Era el hermano de Medea; Jasón lo atrajo con un engaño a una trampa y lo mató, lo que permitió al Argo escapar mientras Eetes se detenía a recoger los restos de su hijo',
+      'Era el jefe de la flota de Eetes; Medea lo sedujo para que traicionara a su padre y abriera el paso a los Argonautas',
+      'Era el hijo de Eetes que fue tomado como rehén por los Argonautas para garantizar su paso por el Bósforo',
+      'Era el almirante de Colquide que persiguió al Argo; Calais y Zetes lo derrotaron en combate aéreo sobre el Ponto'
+    ],
+    correct: 0,
+    hint: 'Recuerda la relación familiar de Apsirto con Medea y cómo el asesinato sirvió como recurso para ganar tiempo durante la huida.',
+    explanation: '<strong>Apsirto</strong> era el hermano de Medea. Durante la persecución, Jasón propuso un encuentro falso con Apsirto bajo pretexto de negociar. Cuando este acudió, Jasón lo mató. Medea desmembró el cadáver y arrojó los pedazos al mar para que Eetes tuviera que detenerse a recoger los restos de su hijo, ganando así tiempo para que el Argo escapara. Este acto marcó definitivamente a Medea como alguien que había quemado todos sus puentes.'
+  },
+  {
+    id: 22, block: 4, difficulty: 'medium',
+    text: '¿Quién era Talos y cuál fue su derrota durante el regreso de los Argonautas?',
+    options: [
+      'Era un gigante de bronce forjado por Hefesto que guardaba la isla de Creta; Medea lo venció descubriendo su único punto vulnerable: un clavo en el tobillo que sellaba su único vaso sanguíneo',
+      'Era un monstruo marino que custodiaba el estrecho entre Sicilia e Italia; Jasón lo mató con la lanza de Atenea',
+      'Era un centauro de hierro que guardaba las costas del Peloponeso; Heracles lo derrotó arrancándole las patas',
+      'Era un gigante de piedra en las costas de Tracia; Calais y Zetes lo confundieron y lo tiraron al mar'
+    ],
+    correct: 0,
+    hint: 'Talos no era de carne y hueso. Piensa en su material y en cuál era el único punto débil de un ser así.',
+    explanation: '<strong>Talos</strong> era un gigante fabricado enteramente de <strong>bronce</strong>, forjado por el dios Hefesto, que recorría la costa de Creta tres veces al día arrojando rocas a los barcos que intentaban acercarse. Su único punto vulnerable era un clavo de bronce en el tobillo que cerraba su único vaso sanguíneo. Medea lo venció con sus artes mágicas: hizo que el clavo se soltara, y la sangre divina se derramó hasta que Talos se desplomó y murió.'
+  },
+  {
+    id: 23, block: 4, difficulty: 'advanced',
+    text: '¿Cómo consiguió Medea convencer a las hijas de Pelias de que mataran a su propio padre?',
+    options: [
+      'Disfrazada de sacerdotisa de Ártemis, demostró con un viejo carnero que podía rejuvenecerlo hirviéndolo en un caldero con hierbas mágicas; prometió hacer lo mismo con Pelias, pero usó hierbas sin poder en el caldero del rey',
+      'Disfrazada de diosa, afirmó ser mensajera del Olimpo y les ordenó que sacrificaran a su padre para que los dioses los perdonaran',
+      'Les convenció de que Pelias estaba maldito por los dioses y que solo su propia sangre podría romper el hechizo',
+      'Se presentó ante ellas como la hermana perdida de Pelias y las convenció de que su padre era en realidad un impostor'
+    ],
+    correct: 0,
+    hint: 'La clave del engaño fue una demostración visual previa con un animal que convenció a las hijas de que el ritual funcionaba realmente.',
+    explanation: 'Medea se disfrazó de sacerdotisa de <strong>Ártemis</strong> y, ante las hijas de Pelias, coció un viejo carnero en un caldero con hierbas y lo transformó en un cordero joven y vivo. Las hijas, convencidas de que el ritual de rejuvenecimiento era real, cortaron a su padre en pedazos y lo echaron al caldero. Pero Medea había sustituido las hierbas mágicas por plantas inútiles: Pelias murió hervido, sin posibilidad de resucitar.'
+  },
+  /* ───── BLOQUE 5: La traición final y el destino de Jasón ───── */
+  {
+    id: 24, block: 5, difficulty: 'medium',
+    text: '¿Qué regalo envió Medea a Creúsa y qué consecuencias tuvo?',
+    options: [
+      'Un manto y una diadema nupciales envenenados; cuando Creúsa se los puso, el veneno le provocó una muerte horrible, y el fuego se propagó al palacio matando también al rey Creonte',
+      'Un cofre con serpientes venenosas que atacaron a Creúsa en su cámara nupcial',
+      'Una poción en forma de perfume que causó que Creúsa perdiera la razón y se lanzara al mar',
+      'Una túnica encantada que Creúsa no podía quitarse y que fue consumiéndola poco a poco'
+    ],
+    correct: 0,
+    hint: 'El regalo era una prenda de vestir de apariencia lujosa, pero el veneno se activaba al contacto con la piel de la destinataria.',
+    explanation: 'Medea envió a Creúsa un <strong>manto y una diadema</strong> nupciales, impregnados con un veneno mortal. Cuando Creúsa se los puso, el veneno empezó a quemarla desde adentro. Su padre Creonte, al intentar ayudarla, quedó también envuelto en las llamas y murió. Este doble crimen fue la primera parte de la venganza de Medea contra Jasón.'
+  },
+  {
+    id: 25, block: 5, difficulty: 'advanced',
+    text: '¿Por qué Jasón perdió el favor de Hera y cómo murió finalmente, según el documento?',
+    options: [
+      'Al abandonar a Medea, Jasón rompió el juramento matrimonial que había hecho ante los dioses; Hera le retiró su protección. Jasón murió aplastado por la proa del Argo, que se derrumbó sobre él mientras descansaba bajo el viejo casco del barco en Corinto',
+      'Jasón murió en combate contra los hijos de Creonte, que se vengaron de él por la muerte de su rey',
+      'Jasón perdió el favor de Hera al negarse a ofrecer sacrificios en su templo; murió ahogado en una tormenta camino de Yolcos',
+      'Jasón envejeció solo y sin honor en Corinto; murió de pena al saber que Medea se había casado con otro rey'
+    ],
+    correct: 0,
+    hint: 'Su muerte está relacionada físicamente con el barco que lo hizo famoso. Recuerda también cuál era el papel de Hera y qué acción de Jasón fue considerada una traición a los dioses.',
+    explanation: 'Al abandonar a Medea y casarse con Creúsa, Jasón rompió el <strong>juramento matrimonial</strong> solemne que había hecho ante los dioses, lo que le costó el favor de <strong>Hera</strong>. Sin la protección divina, Jasón cayó en la miseria y el olvido. Murió en Corinto de forma patética y simbólica: descansando bajo la proa del viejo <strong>Argo</strong>, la nave podrida se derrumbó sobre él aplastándolo. El barco que fue su gloria se convirtió en su sepulcro.'
+  }
+];
+
+/* ============================================================
+   BLOCK METADATA
+   ============================================================ */
+const BLOCK_META = [
+  { num: 1, name: 'Los orígenes de Jasón y el reto de Pelias',       range: [1,7],   emoji: '👑', desc: 'El nacimiento de Jasón, su educación con Quirón, la profecía de Pelias y el episodio de la sandalia perdida.' },
+  { num: 2, name: 'La expedición del Argo y primeras aventuras',       range: [8,14],  emoji: '⚓', desc: 'El Vellocino de Oro, la construcción del Argo, las escalas en Lemnos, el encuentro con Fineo y el paso de las Simplégades.' },
+  { num: 3, name: 'Las pruebas de Jasón y la ayuda de Medea',          range: [15,20], emoji: '🔮', desc: 'La llegada a la Cólquida, las tres pruebas de Eetes, la intervención de los dioses y el decisivo papel de Medea.' },
+  { num: 4, name: 'El regreso, la venganza y la muerte de Pelias',     range: [21,23], emoji: '⚔️', desc: 'La huida de la Cólquida, el crimen de Apsirto, Talos y el astuto plan de Medea para acabar con Pelias.' },
+  { num: 5, name: 'La traición final y el destino de Jasón',           range: [24,25], emoji: '💔', desc: 'La traición de Jasón a Medea, la venganza de la hechicera, su huida a Atenas y la trágica muerte del héroe.' }
+];
+
+/* ============================================================
+   APP STATE
+   ============================================================ */
+const TEACHER_PASSWORD = 'argonautas2024';
+const STORAGE_KEY_RESULTS = 'jason_quiz_results';
+const STORAGE_KEY_QUESTIONS = 'jason_quiz_questions';
+
+let questions = [];
+let currentQ = 0;
+let score = 0;
+let used5050 = false;
+let usedHint = false;
+let answered = false;
+let startTime = null;
+let timerInterval = null;
+let playerName = '';
+let sessionAnswers = []; // { qId, correct, chosen }
+let blockScores = [0,0,0,0,0]; // aciertos por bloque
+let blockTotals = [7,7,5,3,3]; // ajustado a las preguntas reales por bloque
+let lifelineUsedCount = 0;
+
+function getQuestions() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY_QUESTIONS);
+    if (saved) return JSON.parse(saved);
+  } catch(e) {}
+  return DEFAULT_QUESTIONS;
+}
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+function startTimer() {
+  startTime = Date.now();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+function updateTimer() {
+  const el = document.getElementById('timer-display');
+  if (!el) return;
+  const s = Math.floor((Date.now() - startTime) / 1000);
+  const m = Math.floor(s / 60);
+  const ss = s % 60;
+  el.textContent = `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+function getElapsedTime() {
+  const s = Math.floor((Date.now() - startTime) / 1000);
+  const m = Math.floor(s / 60);
+  const ss = s % 60;
+  return `${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`;
+}
+function getElapsedSeconds() {
+  return Math.floor((Date.now() - startTime) / 1000);
+}
+
+/* ============================================================
+   SCREEN MANAGEMENT
+   ============================================================ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   QUIZ INIT
+   ============================================================ */
+function startQuiz() {
+  const nameInput = document.getElementById('student-name').value.trim();
+  if (!nameInput || nameInput.length < 3) {
+    alert('Por favor, escribe tu nombre y apellidos completos antes de comenzar.');
+    return;
+  }
+  playerName = nameInput;
+  questions = getQuestions();
+  currentQ = 0;
+  score = 0;
+  used5050 = false;
+  usedHint = false;
+  answered = false;
+  sessionAnswers = [];
+  blockScores = [0,0,0,0,0];
+  lifelineUsedCount = 0;
+
+  document.getElementById('player-display-name').textContent = playerName;
+
+  buildQuestionDots();
+  renderQuestion();
+  showScreen('quiz-screen');
+  startTimer();
+  showBlockTransition(0);
+}
+
+function buildQuestionDots() {
+  const container = document.getElementById('question-dots');
+  container.innerHTML = '';
+  questions.forEach((q, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'q-dot';
+    dot.textContent = i + 1;
+    dot.id = `dot-${i}`;
+    container.appendChild(dot);
+  });
+}
+
+/* ============================================================
+   BLOCK TRANSITIONS
+   ============================================================ */
+function showBlockTransition(blockIndex) {
+  const b = BLOCK_META[blockIndex];
+  document.getElementById('bt-title').textContent = `${b.emoji} Bloque ${b.num}: ${b.name}`;
+  document.getElementById('bt-desc').textContent = b.desc;
+  document.getElementById('block-transition').classList.add('show');
+}
+function hideBlockTransition() {
+  document.getElementById('block-transition').classList.remove('show');
+}
+
+/* ============================================================
+   RENDER QUESTION
+   ============================================================ */
+function getBlockIndex(q) {
+  for (let i = 0; i < BLOCK_META.length; i++) {
+    const r = BLOCK_META[i].range;
+    if (q.id >= r[0] && q.id <= r[1]) return i;
+  }
+  return 0;
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  answered = false;
+
+  // Update progress
+  const pct = (currentQ / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-num-display').textContent = currentQ + 1;
+  document.getElementById('q-badge-num').textContent = `Pregunta ${currentQ + 1} de ${questions.length}`;
+
+  // Block label
+  const bi = getBlockIndex(q);
+  const bm = BLOCK_META[bi];
+  document.getElementById('block-label-display').textContent = `${bm.emoji} Bloque ${bm.num}`;
+
+  // Difficulty badge
+  const diffEl = document.getElementById('diff-badge');
+  const diffMap = { basic: ['Básica', 'diff-basic'], medium: ['Intermedia', 'diff-medium'], advanced: ['Avanzada', 'diff-advanced'] };
+  const [dLabel, dClass] = diffMap[q.difficulty] || ['Básica', 'diff-basic'];
+  diffEl.textContent = dLabel;
+  diffEl.className = `difficulty-badge ${dClass}`;
+
+  // Question text
+  document.getElementById('question-text').textContent = q.text;
+
+  // Options
+  const grid = document.getElementById('options-grid');
+  const letters = ['A', 'B', 'C', 'D'];
+  grid.innerHTML = '';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.id = `opt-${idx}`;
+    btn.innerHTML = `<span class="option-letter">${letters[idx]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectAnswer(idx);
+    grid.appendChild(btn);
+  });
+
+  // Dots
+  document.querySelectorAll('.q-dot').forEach((d, i) => {
+    d.classList.remove('current', 'correct', 'wrong');
+    if (i === currentQ) d.classList.add('current');
+    else if (i < currentQ) {
+      const ans = sessionAnswers[i];
+      if (ans) d.classList.add(ans.correct ? 'correct' : 'wrong');
+    }
+  });
+
+  // Feedback hidden
+  const fb = document.getElementById('feedback-panel');
+  fb.className = 'feedback-panel';
+  fb.innerHTML = '';
+
+  // Lifelines
+  document.getElementById('ll-5050').disabled = used5050;
+  document.getElementById('ll-hint').disabled = usedHint;
+
+  // Next button hidden
+  document.getElementById('next-btn').style.display = 'none';
+
+  // Score
+  document.getElementById('score-display').textContent = score;
+}
+
+/* ============================================================
+   ANSWER SELECTION
+   ============================================================ */
+function selectAnswer(idx) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[currentQ];
+  const isCorrect = idx === q.correct;
+
+  if (isCorrect) {
+    score++;
+    const bi = getBlockIndex(q);
+    blockScores[bi]++;
+  }
+
+  sessionAnswers[currentQ] = { qId: q.id, correct: isCorrect, chosen: idx, correctIdx: q.correct };
+
+  // Disable all buttons
+  document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+
+  // Highlight correct/wrong
+  document.getElementById(`opt-${idx}`).classList.add(isCorrect ? 'correct-answer' : 'wrong-answer');
+  if (!isCorrect) {
+    document.getElementById(`opt-${q.correct}`).classList.add('correct-answer');
+  }
+
+  // Update dot
+  const dot = document.getElementById(`dot-${currentQ}`);
+  if (dot) {
+    dot.classList.remove('current');
+    dot.classList.add(isCorrect ? 'correct' : 'wrong');
+  }
+
+  // Score update
+  document.getElementById('score-display').textContent = score;
+
+  // Feedback
+  const fb = document.getElementById('feedback-panel');
+  fb.className = `feedback-panel ${isCorrect ? 'feedback-correct' : 'feedback-wrong'} show`;
+  const letters = ['A', 'B', 'C', 'D'];
+  fb.innerHTML = `
+    <div class="feedback-header">
+      ${isCorrect ? '✅ ¡Correcto!' : `❌ Incorrecto — La respuesta correcta era <strong>${letters[q.correct]}. ${q.options[q.correct]}</strong>`}
+    </div>
+    <p class="feedback-text">${q.explanation}</p>
+  `;
+
+  if (isCorrect) launchConfetti();
+
+  // Show next button
+  document.getElementById('next-btn').style.display = 'inline-flex';
+}
+
+/* ============================================================
+   NEXT QUESTION
+   ============================================================ */
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= questions.length) {
+    finishQuiz();
+    return;
+  }
+
+  // Check block transition
+  const prevQ = questions[currentQ - 1];
+  const currQ = questions[currentQ];
+  const prevBlock = getBlockIndex(prevQ);
+  const currBlock = getBlockIndex(currQ);
+  if (currBlock !== prevBlock) {
+    renderQuestion();
+    showBlockTransition(currBlock);
+  } else {
+    renderQuestion();
+  }
+}
+
+/* ============================================================
+   LIFELINES
+   ============================================================ */
+function useLifeline5050() {
+  if (used5050 || answered) return;
+  used5050 = true;
+  lifelineUsedCount++;
+  document.getElementById('ll-5050').disabled = true;
+
+  const q = questions[currentQ];
+  const wrongIndices = [0,1,2,3].filter(i => i !== q.correct);
+  // Pick 2 random wrong ones to eliminate
+  shuffle(wrongIndices);
+  const toEliminate = wrongIndices.slice(0, 2);
+  toEliminate.forEach(i => {
+    const btn = document.getElementById(`opt-${i}`);
+    if (btn) btn.classList.add('eliminated');
+  });
+}
+
+function useLifelineHint() {
+  if (usedHint || answered) return;
+  usedHint = true;
+  lifelineUsedCount++;
+  document.getElementById('ll-hint').disabled = true;
+
+  const q = questions[currentQ];
+  document.getElementById('hint-text').innerHTML = q.hint;
+  document.getElementById('hint-modal').classList.add('show');
+}
+
+function closeHintModal() {
+  document.getElementById('hint-modal').classList.remove('show');
+}
+
+/* ============================================================
+   FINISH QUIZ
+   ============================================================ */
+function finishQuiz() {
+  stopTimer();
+  const elapsed = getElapsedTime();
+  const pct = Math.round((score / questions.length) * 100);
+
+  // Save result
+  const result = {
+    id: Date.now(),
+    name: playerName,
+    date: new Date().toLocaleDateString('es-ES'),
+    dateTime: new Date().toISOString(),
+    time: elapsed,
+    timeSeconds: getElapsedSeconds(),
+    score: score,
+    total: questions.length,
+    pct: pct,
+    lifelines: lifelineUsedCount,
+    blockScores: [...blockScores],
+    answers: sessionAnswers
+  };
+  saveResult(result);
+
+  renderResults(result);
+  showScreen('results-screen');
+
+  if (pct >= 80) launchConfetti(true);
+}
+
+/* ============================================================
+   RENDER RESULTS
+   ============================================================ */
+function renderResults(result) {
+  document.getElementById('results-player-name').textContent = `${result.name} · ${result.date}`;
+
+  // Circle
+  const circle = document.getElementById('score-circle');
+  circle.style.setProperty('--pct', result.pct);
+  document.getElementById('result-pct').textContent = result.pct + '%';
+
+  // Meta cards
+  const meta = document.getElementById('result-meta');
+  meta.innerHTML = `
+    <div class="meta-card"><span class="meta-value" style="color:var(--correct);">${result.score}</span><span class="meta-desc">Acertadas</span></div>
+    <div class="meta-card"><span class="meta-value" style="color:var(--wrong);">${result.total - result.score}</span><span class="meta-desc">Falladas</span></div>
+    <div class="meta-card"><span class="meta-value">${result.time}</span><span class="meta-desc">Tiempo</span></div>
+    <div class="meta-card"><span class="meta-value">${result.pct}%</span><span class="meta-desc">Puntuación</span></div>
+    <div class="meta-card"><span class="meta-value">${result.lifelines}</span><span class="meta-desc">Comodines usados</span></div>
+    <div class="meta-card"><span class="meta-value">${result.date}</span><span class="meta-desc">Fecha</span></div>
+  `;
+
+  // Block results
+  const br = document.getElementById('blocks-results');
+  br.innerHTML = '';
+  BLOCK_META.forEach((bm, i) => {
+    const qs = questions.filter(q => getBlockIndex(q) === i);
+    const total = qs.length;
+    const sc = result.blockScores[i] || 0;
+    const p = total > 0 ? Math.round((sc / total) * 100) : 0;
+    br.innerHTML += `
+      <div class="block-result-row">
+        <span style="font-size:1.1rem;">${bm.emoji}</span>
+        <span class="block-result-name">${bm.name}</span>
+        <div class="block-mini-bar"><div class="block-mini-fill" style="width:${p}%"></div></div>
+        <span class="block-result-score">${sc}/${total} (${p}%)</span>
+      </div>
+    `;
+  });
+
+  // Comment
+  const c = document.getElementById('result-comment');
+  c.innerHTML = generateComment(result);
+}
+
+function generateComment(result) {
+  const p = result.pct;
+  const bs = result.blockScores;
+  const qs = questions;
+
+  let comments = [];
+
+  if (p >= 90) comments.push('<strong>🏆 Resultado excelente.</strong> Dominas la historia de Jasón y los Argonautas con precisión: recuerdas tanto los acontecimientos principales como los detalles más sutiles.');
+  else if (p >= 75) comments.push('<strong>⭐ Buen resultado.</strong> Has demostrado una comprensión sólida del relato. Repasa los episodios en los que tuviste más dificultades.');
+  else if (p >= 55) comments.push('<strong>📖 Resultado aceptable.</strong> Has identificado los acontecimientos principales, pero conviene releer el documento con más detenimiento.');
+  else comments.push('<strong>📚 Resultado mejorable.</strong> Te recomiendo volver a leer el documento antes de repetir el concurso.');
+
+  BLOCK_META.forEach((bm, i) => {
+    const qs_b = qs.filter(q => getBlockIndex(q) === i);
+    const total = qs_b.length;
+    const sc = bs[i] || 0;
+    const p2 = total > 0 ? Math.round((sc / total) * 100) : 0;
+    if (p2 >= 80) comments.push(`Conoces bien <em>${bm.name}</em>.`);
+    else if (p2 <= 40) comments.push(`Conviene repasar <em>${bm.name}</em>.`);
+  });
+
+  return comments.join(' ');
+}
+
+/* ============================================================
+   REVIEW
+   ============================================================ */
+function showReview() {
+  const container = document.getElementById('review-content');
+  container.innerHTML = '';
+  const letters = ['A', 'B', 'C', 'D'];
+
+  questions.forEach((q, i) => {
+    const ans = sessionAnswers[i] || {};
+    const wasCorrect = ans.correct;
+    const bi = getBlockIndex(q);
+    const bm = BLOCK_META[bi];
+    const diffMap = { basic: 'Básica', medium: 'Intermedia', advanced: 'Avanzada' };
+
+    container.innerHTML += `
+      <div class="review-item ${wasCorrect ? 'was-correct' : 'was-wrong'}">
+        <div class="review-q-num">${bm.emoji} Bloque ${bm.num} · Pregunta ${i+1} · ${diffMap[q.difficulty] || 'Básica'} · ${wasCorrect ? '✅ Correcta' : '❌ Incorrecta'}</div>
+        <p class="review-q-text">${q.text}</p>
+        <div class="review-answer-row">
+          <span>Tu respuesta:</span>
+          <span class="review-your-answer ${wasCorrect ? 'ok' : ''}">
+            ${ans.chosen !== undefined ? `${letters[ans.chosen]}. ${q.options[ans.chosen]}` : 'Sin respuesta'}
+          </span>
+        </div>
+        ${!wasCorrect ? `<div class="review-answer-row"><span>Correcta:</span><span class="review-correct-answer">${letters[q.correct]}. ${q.options[q.correct]}</span></div>` : ''}
+        <div class="review-explanation">${q.explanation}</div>
+      </div>
+    `;
+  });
+
+  showScreen('review-screen');
+}
+
+function showResults() {
+  showScreen('results-screen');
+}
+
+/* ============================================================
+   RESTART
+   ============================================================ */
+function restartQuiz() {
+  stopTimer();
+  document.getElementById('student-name').value = '';
+  showScreen('start-screen');
+}
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+function saveResult(result) {
+  const results = getAllResults();
+  results.push(result);
+  localStorage.setItem(STORAGE_KEY_RESULTS, JSON.stringify(results));
+}
+
+function getAllResults() {
+  try {
+    const r = localStorage.getItem(STORAGE_KEY_RESULTS);
+    return r ? JSON.parse(r) : [];
+  } catch(e) { return []; }
+}
+
+/* ============================================================
+   TEACHER PANEL
+   ============================================================ */
+function goToTeacherLogin() { showScreen('teacher-login-screen'); }
+function teacherLogout() { showScreen('start-screen'); }
+
+function teacherLogin() {
+  const pwd = document.getElementById('teacher-pwd').value;
+  if (pwd === TEACHER_PASSWORD) {
+    document.getElementById('login-error').style.display = 'none';
+    document.getElementById('teacher-pwd').value = '';
+    renderTeacherPanel();
+    showScreen('teacher-panel-screen');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function renderTeacherPanel() {
+  const results = getAllResults();
+  questions = getQuestions();
+
+  renderTeacherStats(results);
+  renderStudentsTable(results);
+  renderBlocksAnalysis(results);
+  renderQuestionsAnalysis(results);
+}
+
+function renderTeacherStats(results) {
+  const grid = document.getElementById('teacher-stats-grid');
+  if (results.length === 0) {
+    grid.innerHTML = '<p style="color:var(--silver); grid-column:1/-1; text-align:center; padding:20px;">Todavía no hay resultados registrados.</p>';
+    return;
+  }
+  const avgPct = Math.round(results.reduce((a,r) => a + r.pct, 0) / results.length);
+  const best = results.reduce((a,r) => r.pct > a.pct ? r : a, results[0]);
+  const worst = results.reduce((a,r) => r.pct < a.pct ? r : a, results[0]);
+  const avgTime = Math.round(results.reduce((a,r) => a + (r.timeSeconds||0), 0) / results.length);
+  const avgM = Math.floor(avgTime/60), avgS = avgTime%60;
+
+  grid.innerHTML = `
+    <div class="stat-card"><span class="stat-val">${results.length}</span><span class="stat-label">Alumnos</span></div>
+    <div class="stat-card"><span class="stat-val">${avgPct}%</span><span class="stat-label">Nota media</span></div>
+    <div class="stat-card"><span class="stat-val">${best.pct}%</span><span class="stat-label">Mejor nota</span></div>
+    <div class="stat-card"><span class="stat-val">${worst.pct}%</span><span class="stat-label">Nota más baja</span></div>
+    <div class="stat-card"><span class="stat-val">${String(avgM).padStart(2,'0')}:${String(avgS).padStart(2,'0')}</span><span class="stat-label">Tiempo medio</span></div>
+  `;
+}
+
+function renderStudentsTable(results) {
+  const tbody = document.getElementById('students-tbody');
+  if (results.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:var(--silver);">Sin datos</td></tr>';
+    return;
+  }
+  const sorted = [...results].sort((a,b) => new Date(b.dateTime) - new Date(a.dateTime));
+  tbody.innerHTML = sorted.map((r, i) => {
+    const pctClass = r.pct >= 75 ? 'pct-high' : r.pct >= 50 ? 'pct-mid' : 'pct-low';
+    const blockHtml = r.blockScores ? BLOCK_META.map((bm, bi) => {
+      const qs_b = questions.filter(q => getBlockIndex(q) === bi);
+      const total = qs_b.length;
+      const sc = r.blockScores[bi] || 0;
+      return `<span class="bsm">${bm.emoji}${sc}/${total}</span>`;
+    }).join('') : '—';
+    return `<tr>
+      <td>${i+1}</td>
+      <td style="font-weight:600; color:var(--white);">${r.name}</td>
+      <td>${r.date}</td>
+      <td>${r.time}</td>
+      <td>${r.score}/${r.total}</td>
+      <td class="pct-cell ${pctClass}">${r.pct}%</td>
+      <td>${r.lifelines}</td>
+      <td><div class="block-scores-mini">${blockHtml}</div></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderBlocksAnalysis(results) {
+  const container = document.getElementById('blocks-analysis');
+  if (results.length === 0) {
+    container.innerHTML = '<p style="color:var(--silver);">Sin datos suficientes.</p>';
+    return;
+  }
+  container.innerHTML = '';
+  BLOCK_META.forEach((bm, bi) => {
+    const qs_b = questions.filter(q => getBlockIndex(q) === bi);
+    const total = qs_b.length;
+    const avgSc = results.reduce((a, r) => a + (r.blockScores ? r.blockScores[bi] || 0 : 0), 0) / results.length;
+    const avgPct = total > 0 ? Math.round((avgSc / total) * 100) : 0;
+    const color = avgPct >= 70 ? 'var(--correct)' : avgPct >= 50 ? 'var(--gold)' : 'var(--wrong)';
+    container.innerHTML += `
+      <div class="block-result-row" style="margin-bottom:10px;">
+        <span style="font-size:1.2rem;">${bm.emoji}</span>
+        <span class="block-result-name">${bm.name}<br><span style="font-size:0.72rem; opacity:0.6;">${total} preguntas</span></span>
+        <div class="block-mini-bar"><div class="block-mini-fill" style="width:${avgPct}%; background: linear-gradient(90deg, ${color}, ${color});"></div></div>
+        <span class="block-result-score" style="color:${color};">${avgPct}%</span>
+      </div>
+    `;
+  });
+}
+
+function renderQuestionsAnalysis(results) {
+  if (results.length === 0) {
+    document.getElementById('hardest-questions').innerHTML = '<p style="color:var(--silver);">Sin datos.</p>';
+    document.getElementById('all-q-tbody').innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--silver);">Sin datos</td></tr>';
+    return;
+  }
+
+  // Build per-question stats
+  const qStats = questions.map((q, qi) => {
+    let correct = 0, total = 0;
+    results.forEach(r => {
+      if (r.answers && r.answers[qi]) {
+        total++;
+        if (r.answers[qi].correct) correct++;
+      }
+    });
+    const pct = total > 0 ? Math.round((correct / total) * 100) : null;
+    return { q, qi, correct, total, pct };
+  });
+
+  // Hardest 5
+  const hardest = [...qStats].filter(s => s.pct !== null).sort((a,b) => a.pct - b.pct).slice(0,5);
+  document.getElementById('hardest-questions').innerHTML = hardest.map((s, i) => `
+    <div class="hardest-item">
+      <div class="hardest-rank">${i+1}</div>
+      <div class="hardest-text">P${s.qi+1}: ${s.q.text.slice(0,90)}…</div>
+      <div class="hardest-pct">${s.pct}% ✓</div>
+    </div>
+  `).join('');
+
+  // All questions table
+  const diffMap = { basic: 'Básica', medium: 'Intermedia', advanced: 'Avanzada' };
+  document.getElementById('all-q-tbody').innerHTML = qStats.map(s => {
+    const bi = getBlockIndex(s.q);
+    const bm = BLOCK_META[bi];
+    const pctClass = s.pct === null ? '' : s.pct >= 70 ? 'pct-high' : s.pct >= 50 ? 'pct-mid' : 'pct-low';
+    return `<tr>
+      <td>${s.qi+1}</td>
+      <td style="max-width:300px; white-space:normal; font-size:0.78rem;">${s.q.text.slice(0,80)}…</td>
+      <td>${bm.emoji} B${bm.num}</td>
+      <td>${diffMap[s.q.difficulty]||'—'}</td>
+      <td style="color:var(--correct);">${s.correct}</td>
+      <td style="color:var(--wrong);">${s.total - s.correct}</td>
+      <td class="pct-cell ${pctClass}">${s.pct !== null ? s.pct+'%' : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================================
+   EXPORT CSV
+   ============================================================ */
+function exportCSV() {
+  const results = getAllResults();
+  if (results.length === 0) { alert('No hay resultados para exportar.'); return; }
+
+  const headers = ['Nombre', 'Fecha', 'Tiempo', 'Aciertos', 'Total', '%Aciertos', 'Comodines',
+    'Bloque1', 'Bloque2', 'Bloque3', 'Bloque4', 'Bloque5'];
+
+  const rows = results.map(r => {
+    const bs = r.blockScores || [0,0,0,0,0];
+    return [
+      `"${r.name}"`, r.date, r.time, r.score, r.total, r.pct + '%', r.lifelines,
+      ...bs.slice(0,5)
+    ].join(',');
+  });
+
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `resultados_jason_argonautas_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   CLEAR RESULTS
+   ============================================================ */
+function clearAllResults() {
+  if (!confirm('¿Seguro que quieres reiniciar los datos? Los resultados guardados se eliminarán permanentemente.')) return;
+  localStorage.removeItem(STORAGE_KEY_RESULTS);
+  renderTeacherPanel();
+}
+
+/* ============================================================
+   QUESTION EDITOR
+   ============================================================ */
+function toggleQuestionEditor() {
+  const area = document.getElementById('question-editor-area');
+  area.classList.toggle('show');
+  if (area.classList.contains('show')) {
+    document.getElementById('questions-json-editor').value = JSON.stringify(getQuestions(), null, 2);
+  }
+}
+
+function saveQuestionsFromEditor() {
+  const textarea = document.getElementById('questions-json-editor');
+  const msgEl = document.getElementById('editor-msg');
+  try {
+    const qs = JSON.parse(textarea.value);
+    if (!Array.isArray(qs) || qs.length === 0) throw new Error('Debe ser un array no vacío');
+    localStorage.setItem(STORAGE_KEY_QUESTIONS, JSON.stringify(qs));
+    msgEl.style.color = 'var(--correct)';
+    msgEl.textContent = '✅ Cambios guardados correctamente. Se aplicarán en la próxima partida.';
+  } catch(e) {
+    msgEl.style.color = 'var(--wrong)';
+    msgEl.textContent = '⚠️ Error en el JSON: ' + e.message;
+  }
+}
+
+function resetQuestionsToDefault() {
+  if (!confirm('¿Restaurar las preguntas originales? Se perderán los cambios del editor.')) return;
+  localStorage.removeItem(STORAGE_KEY_QUESTIONS);
+  document.getElementById('questions-json-editor').value = JSON.stringify(DEFAULT_QUESTIONS, null, 2);
+  document.getElementById('editor-msg').style.color = 'var(--gold-light)';
+  document.getElementById('editor-msg').textContent = '↩️ Preguntas restauradas al banco original.';
+}
+
+/* ============================================================
+   TABS (TEACHER)
+   ============================================================ */
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+  event.target.classList.add('active');
+}
+
+/* ============================================================
+   CONFETTI
+   ============================================================ */
+function launchConfetti(big = false) {
+  const container = document.getElementById('confetti-container');
+  const colors = ['#f0c040', '#ffe87a', '#22c55e', '#3b82f6', '#f97316', '#c026d3', '#ffffff'];
+  const count = big ? 80 : 20;
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + 'vw';
+      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+      piece.style.width = (6 + Math.random() * 8) + 'px';
+      piece.style.height = (10 + Math.random() * 14) + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      piece.style.animationDelay = Math.random() * 0.5 + 's';
+      container.appendChild(piece);
+      setTimeout(() => piece.remove(), 4000);
+    }, i * 30);
+  }
+}
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('student-name').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') startQuiz();
+});
+</script>
+</body>
+</html>
